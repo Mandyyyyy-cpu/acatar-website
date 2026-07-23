@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
       success: true,
 
-      redirectUrl:
+      redirecTo:
         `/picture/${encodeURIComponent(
           user.account,
         )}`,

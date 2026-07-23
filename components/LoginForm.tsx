@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function LoginForm() {
   const router = useRouter();
 
   const [account, setAccount] = useState("");
@@ -84,8 +84,8 @@ export default function LoginPage() {
       }
 
 
-      router.push(
-        `/picture/${normalizedAccount}`
+      router.replace(
+        data.redirectTo
       );
 
 

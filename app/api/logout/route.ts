@@ -1,14 +1,19 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { clearSessionCookie } from "@/lib/session";
 
-export async function POST(request: Request) {
-  await clearSessionCookie();
+export async function POST() {
 
-  return NextResponse.redirect(
-    new URL("/", request.url),
-    {
-      status: 303,
-    },
+  const cookieStore = await cookies();
+
+
+  cookieStore.delete(
+    "acatar_session"
   );
+
+
+  return NextResponse.json({
+    success:true,
+  });
+
 }
