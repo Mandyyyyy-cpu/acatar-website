@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -9,138 +10,372 @@ export default function LoginPage() {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const accountLength = 6;
+
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     setMessage("");
 
-    const accountRule = /^[A-Za-z0-9]{6}$/;
+    const normalizedAccount =
+      account.trim().toUpperCase();
 
-    if (!accountRule.test(account)) {
-      setMessage("账号必须是5个数字或英文字母。");
+
+    // NFC账号：6位数字+字母
+    const accountRule =
+      /^[A-Z0-9]{6}$/;
+
+
+    if (!accountRule.test(normalizedAccount)) {
+      setMessage(
+        "账号必须是6位数字或英文字母。"
+      );
       return;
     }
+
 
     if (!password) {
-      setMessage("请输入密码。");
+      setMessage(
+        "请输入密码。"
+      );
       return;
     }
 
+
     try {
-      setIsLoading(true);
 
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          account,
-          password,
-        }),
-      });
+      setLoading(true);
 
-      const data = await response.json();
+
+      const response = await fetch(
+        "/api/login",
+        {
+          method: "POST",
+          headers:{
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            account:
+              normalizedAccount,
+            password,
+          }),
+        }
+      );
+
+
+      const data =
+        await response.json();
+
 
       if (!response.ok) {
-        setMessage(data.message || "账号或密码错误。");
+
+        setMessage(
+          data.message ||
+          "账号或密码错误。"
+        );
+
         return;
       }
 
-      router.push(`/picture/${account.toUpperCase()}`);
-    } catch {
-      setMessage("登录失败，请重新尝试。");
+
+      router.push(
+        `/picture/${normalizedAccount}`
+      );
+
+
+    } catch(error){
+
+      console.error(error);
+
+      setMessage(
+        "服务器连接失败。"
+      );
+
+
     } finally {
-      setIsLoading(false);
+
+      setLoading(false);
+
     }
   }
 
+
+
   return (
-    <main className="min-h-dvh bg-neutral-950 text-white">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[430px] items-center justify-center bg-gradient-to-b from-neutral-800 via-neutral-900 to-black px-6">
-        <section className="w-full rounded-[28px] border border-white/15 bg-white/10 p-7 shadow-2xl backdrop-blur-xl">
-          <p className="text-xs tracking-[0.3em] text-neutral-400">
-            DIGITAL COLLECTION
-          </p>
+  <main
+    className="
+      min-h-screen
+      w-full
+      bg-cover
+      bg-center
+      flex
+      justify-center
+    "
+    style={{
+      backgroundImage:
+        "url('/background.PNG')",
+    }}
+  >
 
-          <h1 className="mt-3 text-3xl font-bold">
-            登录
-          </h1>
+    <div
+      className="
+        w-full
+        max-w-[430px]
+        min-h-screen
+        flex
+        flex-col
+        items-center
+        justify-center
+        px-8
+      "
+    >
 
-          <p className="mt-2 text-sm text-neutral-300">
-            输入你的账号和密码，查看专属图片。
-          </p>
 
-          <form
-            onSubmit={handleSubmit}
-            className="mt-8 space-y-5"
-          >
-            <div>
-              <label
-                htmlFor="account"
-                className="mb-2 block text-sm font-medium"
-              >
-                账号
-              </label>
+      {/* Logo */}
 
-              <input
-                type="text"
-                value={account}
-                onChange={(event) => {
-                  const newValue = event.target.value
-                    .replace(/[^A-Za-z0-9]/g, "")
-                    .slice(0, 6);
+      <div
+        className="
+          flex
+          justify-center
+          mb-4
+        "
+      >
 
-                  setAccount(newValue);
-                }}
-                placeholder="6位数字或字母"
-                maxLength={6}
-                autoComplete="username"
-                className="w-full rounded-2xl border border-white/20 bg-black/30 px-4 py-4 text-base text-white outline-none placeholder:text-neutral-500 focus:border-white"
-              />
+        <Image
+          src="/logo.png"
+          width={1000}
+          height={1000}
+          alt="Buddha Energy"
+          className="
+            object-contain
+          "
+        />
 
-              <p className="mt-2 text-xs text-neutral-400">
-                例如：A1234
-              </p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium"
-              >
-                密码
-              </label>
-
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="请输入密码"
-                autoComplete="current-password"
-                className="w-full rounded-2xl border border-white/20 bg-black/30 px-4 py-4 text-base text-white outline-none placeholder:text-neutral-500 focus:border-white"
-              />
-            </div>
-
-            {message && (
-              <p className="rounded-xl bg-red-500/15 px-4 py-3 text-sm text-red-200">
-                {message}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full rounded-2xl bg-white py-4 font-bold text-black disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isLoading ? "正在登录……" : "登录"}
-            </button>
-          </form>
-        </section>
       </div>
-    </main>
+
+
+
+      <form
+        onSubmit={handleSubmit}
+        className="
+          w-full
+          flex
+          flex-col
+          items-center
+          gap-4
+        "
+      >
+
+
+
+        {/* Account */}
+
+        <div
+className="
+flex
+gap-3
+justify-center
+"
+>
+
+{
+Array.from(
+  { length: accountLength }
+).map((_, index)=>(
+  
+  <input
+
+    key={index}
+
+    value={
+      account[index] || ""
+    }
+
+
+    maxLength={1}
+
+
+    onChange={(e)=>{
+
+      const value =
+        e.target.value
+        .toUpperCase()
+        .replace(
+          /[^A-Z0-9]/g,
+          ""
+        );
+
+
+      const chars =
+        account.split("");
+
+
+      chars[index] =
+        value;
+
+
+      setAccount(
+        chars.join("")
+      );
+
+
+      // 自动跳下一格
+
+      if(
+        value &&
+        e.target.nextSibling
+      ){
+        (
+          e.target
+          .nextSibling as HTMLInputElement
+        ).focus();
+      }
+
+
+    }}
+
+    onKeyDown={(e)=>{
+
+  if(e.key === "Backspace"){
+
+    e.preventDefault();
+
+    setAccount("");
+
+    // 光标回第一个格子
+
+    const firstInput =
+      e.currentTarget
+      .parentElement
+      ?.querySelector("input");
+
+
+    if(firstInput){
+
+      (
+        firstInput as HTMLInputElement
+      ).focus();
+
+    }
+
+  }
+
+}}
+
+    className="
+    w-10
+    h-12
+    bg-transparent
+    border-b-2
+    border-[#B40020]
+    text-center
+    text-xl
+    text-[#B40020]
+    outline-none
+    "
+
+  />
+
+))
+}
+
+</div>
+
+
+
+        {/* Password */}
+
+        <input
+
+          type="password"
+
+          value={password}
+
+          onChange={(e)=>
+            setPassword(e.target.value)
+          }
+
+
+          placeholder="请输入密码"
+
+          className="
+          w-[260px]
+          h-[56px]
+          rounded-[18px]
+          bg-[#B40020]
+          px-6
+          text-center
+          text-white
+          text-lg
+          paceholder:text-white/70
+          outline-none
+          shadow-[0_3px_0_rgba(120,0,20,0.15)]
+          focus:ring-2
+          focus:ring-[#B40020]/30
+          "
+
+        />
+
+
+
+        {
+          message &&
+          (
+            <p
+              className="
+                text-red-700
+                text-sm
+              "
+            >
+              {message}
+            </p>
+          )
+        }
+
+
+
+        <button
+
+          disabled={loading}
+
+          className="
+            mt-2
+            bg-[#B40020]
+            text-white
+            px-16
+            py-4
+            text-lg
+            font-bold
+            rounded-none
+          "
+
+        >
+
+          {
+            loading
+            ?
+            "进入中..."
+            :
+            "进入收藏"
+          }
+
+
+        </button>
+
+
+      </form>
+
+
+    </div>
+
+
+  </main>
   );
+
 }
