@@ -1,11 +1,18 @@
 import { cookies } from "next/headers";
 
+
 const SESSION_COOKIE_NAME = "acatar_session";
 
+
 export type SessionData = {
+
   account: string;
+
   imageUrl: string;
+
 };
+
+
 
 
 /**
@@ -14,13 +21,23 @@ export type SessionData = {
 export function createSessionToken(
   session: SessionData,
 ) {
+
   return encodeURIComponent(
     JSON.stringify({
-      account: session.account,
-      imageUrl: session.imageUrl,
+
+      account:
+        session.account,
+
+      imageUrl:
+        session.imageUrl,
+
     }),
   );
+
 }
+
+
+
 
 
 /**
@@ -29,70 +46,188 @@ export function createSessionToken(
 export async function setSessionCookie(
   token: string,
 ) {
-  const cookieStore = await cookies();
+
+  const cookieStore =
+    await cookies();
+
 
   cookieStore.set(
     SESSION_COOKIE_NAME,
     token,
     {
+
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+
+      secure:
+        process.env.NODE_ENV === "production",
+
       sameSite: "lax",
+
       path: "/",
-      maxAge: 60 * 60 * 24 * 365,
+
+      maxAge:
+        60 * 60 * 24 * 365,
+
     },
   );
+
 }
+
+
+
+
 
 
 /**
  * 获取当前登录用户
  */
 export async function getCurrentSession(): Promise<SessionData | null> {
-  const cookieStore = await cookies();
 
-  const token = cookieStore.get(
-    SESSION_COOKIE_NAME,
-  )?.value;
+
+  const cookieStore =
+    await cookies();
+
+
+
+  const token =
+    cookieStore.get(
+      SESSION_COOKIE_NAME,
+    )?.value;
+
+
+
+  console.log(
+    "========== SESSION DEBUG =========="
+  );
+
+
+  console.log(
+    "COOKIE TOKEN:",
+    token
+  );
+
+
 
 
   if (!token) {
+
+
+    console.log(
+      "NO COOKIE FOUND"
+    );
+
+
     return null;
+
   }
 
 
+
+
   try {
-    const session = JSON.parse(
-      decodeURIComponent(token),
-    ) as SessionData;
+
+
+    const decoded =
+      decodeURIComponent(token);
+
+
+
+    console.log(
+      "DECODED TOKEN:",
+      decoded
+    );
+
+
+
+
+    const session =
+      JSON.parse(
+        decoded,
+      ) as SessionData;
+
+
+
+    console.log(
+      "PARSED SESSION:",
+      session
+    );
+
+
 
 
     if (
       !session.account ||
       !session.imageUrl
     ) {
+
+
+      console.log(
+        "SESSION DATA INVALID"
+      );
+
+
       return null;
+
     }
 
 
+
+
+    console.log(
+      "SESSION SUCCESS:",
+      session.account
+    );
+
+
+
+
     return {
-      account: session.account,
-      imageUrl: session.imageUrl,
+
+      account:
+        session.account,
+
+
+      imageUrl:
+        session.imageUrl,
+
     };
 
-  } catch {
+
+
+
+  } catch(error) {
+
+
+    console.log(
+      "SESSION PARSE ERROR:",
+      error
+    );
+
+
     return null;
+
   }
+
 }
+
+
+
+
 
 
 /**
  * 删除登录状态
  */
 export async function clearSessionCookie() {
-  const cookieStore = await cookies();
+
+
+  const cookieStore =
+    await cookies();
+
+
 
   cookieStore.delete(
     SESSION_COOKIE_NAME,
   );
+
 }

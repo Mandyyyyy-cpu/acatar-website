@@ -70,24 +70,38 @@ export default function LoginForm() {
 
 
       const data =
-        await response.json();
+  await response.json();
 
 
-      if (!response.ok) {
-
-        setMessage(
-          data.message ||
-          "账号或密码错误。"
-        );
-
-        return;
-      }
+console.log(
+  "LOGIN RESPONSE:",
+  data
+);
 
 
-      router.replace(
-        data.redirectTo
-      );
+if (!response.ok) {
 
+  setMessage(
+    data.message ||
+    "账号或密码错误。"
+  );
+
+  return;
+
+}
+
+
+// 登陆成功
+console.log(
+  "LOGIN SUCCESS",
+  data
+);
+
+//重新进入首页，让app/page.tsx 读取cookie
+
+window.location.href = "/";
+
+return;
 
     } catch(error){
 
@@ -341,6 +355,8 @@ Array.from(
 
 
         <button
+        
+          type="submit"  
 
           disabled={loading}
 
