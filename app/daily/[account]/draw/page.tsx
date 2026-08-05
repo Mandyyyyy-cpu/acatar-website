@@ -1,27 +1,24 @@
-import { redirect } from "next/navigation";
-
-import { getCurrentSession } from "@/lib/session";
+"use client";
 
 
-type DrawPageProps = {
-
-  params: Promise<{
-    account:string;
-  }>;
-
-};
+import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 
 
-export default async function DrawPage({
 
-  params,
-
-}:DrawPageProps){
+export default function DrawPage() {
 
 
-  const {
-    account
-  } = await params;
+  const router = useRouter();
+
+
+  const params =
+    useParams();
+
+
+  const account =
+    params.account as string;
+
 
 
   const normalizedAccount =
@@ -29,19 +26,72 @@ export default async function DrawPage({
 
 
 
-  const session =
-    await getCurrentSession();
+  const [selectedCard, setSelectedCard] =
+    useState<number | null>(null);
 
 
 
-  if(
-    !session ||
-    session.account !== normalizedAccount
-  ){
+  const [revealing, setRevealing] =
+    useState(false);
 
-    redirect("/");
+
+
+  const [light, setLight] =
+    useState(false);
+
+
+
+  const [finished, setFinished] =
+    useState(false);
+
+
+
+
+  function handleCardClick(card:number){
+
+
+    if(finished) return;
+
+
+    setFinished(true);
+
+
+    setSelectedCard(card);
+
+
+
+    // 等待佛像出现
+
+    setTimeout(()=>{
+
+      setRevealing(true);
+
+    },300);
+
+
+
+    // 白光
+
+    setTimeout(()=>{
+
+      setLight(true);
+    },2200);
+
+
+
+    // 跳转每日佛像
+
+    setTimeout(()=>{
+
+      router.push(
+        `/daily/${normalizedAccount}/result`
+      );
+
+    },3500);
+
 
   }
+
 
 
 
@@ -105,31 +155,129 @@ export default async function DrawPage({
 
           {[1,2,3].map((card)=>(
 
+
             <button
 
               key={card}
 
+              onClick={()=>{
+
+                handleCardClick(card);
+
+              }}
+
               className="
+                relative
                 h-56
                 w-36
                 rounded-xl
                 border
                 border-[#9A2325]
                 bg-white
+                overflow-hidden
               "
 
             >
 
-            <img
-               src="/cards/lotus-card.png"
-               alt="莲花卡"
-               className="
-                 h-full
-                 w-full
-                 object-cover
-                 rounded-xl
-               "
-            />
+
+
+              {/* 原始莲花卡 */}
+
+              <img
+
+                src="/cards/lotus-card.png"
+
+                alt="莲花卡"
+
+                className={`
+                  h-full
+                  w-full
+                  object-cover
+                  rounded-xl
+
+                  transition-opacity
+                  duration-700
+
+
+                  ${
+                    selectedCard !== null &&
+                    selectedCard !== card
+
+                    ?
+
+                    "opacity-0"
+
+                    :
+
+                    "opacity-100"
+
+                  }
+
+                `}
+
+              />
+
+
+
+
+           {/* 被选中的佛像 */}
+
+{
+  selectedCard === card && (
+
+    <img
+
+      src="/statue/today.png"
+
+      alt="今日佛像"
+
+
+      className={`
+        absolute
+        left-1/2
+        top-1/2
+
+        -translate-x-1/2
+        -translate-y-1/2
+
+        rounded-xl
+
+        transition-all
+        duration-[1800ms]
+        ease-out
+
+
+        ${
+          revealing
+          ?
+          `
+          h-[85vh]
+          w-[85vw]
+
+          object-contain
+
+          scale-100
+
+          opacity-100
+          `
+          :
+          `
+          h-0
+          w-0
+
+          scale-0
+
+          opacity-0
+          `
+        }
+
+      `}
+
+    />
+
+  )
+}
+
 
             </button>
 
@@ -142,6 +290,33 @@ export default async function DrawPage({
 
 
       </div>
+
+
+
+
+      {/* 白光扩散 */}
+
+      {
+        light && (
+
+          <div
+
+            className="
+              fixed
+              inset-0
+              z-[60]
+
+              bg-white
+
+              animate-pulse
+
+            "
+
+          />
+
+        )
+      }
+
 
 
     </main>
