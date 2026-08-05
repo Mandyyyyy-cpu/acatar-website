@@ -110,8 +110,8 @@ export default async function DrawPage({
               key={card}
 
               className="
-                h-40
-                w-24
+                h-56
+                w-36
                 rounded-xl
                 border
                 border-[#9A2325]
@@ -120,8 +120,16 @@ export default async function DrawPage({
 
             >
 
-              🪷
-
+            <img
+               src="/cards/lotus-card.png"
+               alt="莲花卡"
+               className="
+                 h-full
+                 w-full
+                 object-cover
+                 rounded-xl
+               "
+            />
 
             </button>
 
