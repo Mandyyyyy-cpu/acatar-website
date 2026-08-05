@@ -162,7 +162,7 @@ return;
       >
 
         <Image
-          src="/logo.png"
+          src="/logo.svg"
           width={1000}
           height={1000}
           alt="Buddha Energy"

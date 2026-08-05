@@ -2,9 +2,7 @@ export default function AvatarPage() {
   return (
     <main className="min-h-screen bg-neutral-950 px-6 py-16 text-white">
       <div className="mx-auto max-w-4xl">
-        <a href="/" className="text-neutral-400">
-          ← 返回首页
-        </a>
+        {/* 返回按钮由 BackButton组件负责 */}
 
         <h1 className="mt-8 text-4xl font-bold">
           我的头像

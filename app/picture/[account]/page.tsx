@@ -1,3 +1,4 @@
+import BottomBar from "@/components/BottomBar";
 
 import { redirect, notFound } from "next/navigation";
 
@@ -106,7 +107,7 @@ export default async function PicturePage({
           src={user.imageUrl}
           alt={`${normalizedAccount} 的专属佛像`}
           className="
-            max-h-[85vh]
+            max-h-[75vh]
             w-auto
             max-w-full
             object-contain
@@ -117,6 +118,11 @@ export default async function PicturePage({
 
       </div>
 
+    {/* 底部导航栏目 */}
+
+    <BottomBar
+     account={normalizedAccount} 
+    />
 
     </main>
 
