@@ -28,7 +28,7 @@ export default async function DailyPage({
     await getCurrentSession();
 
   const apiBase =
-    process.env.SCF_API_BASE_URL;
+    process.env.ACATAR_API_BASE_URL;
 
   let todayImageUrl:
     string | null = null;

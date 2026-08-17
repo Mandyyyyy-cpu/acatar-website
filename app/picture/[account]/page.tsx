@@ -29,13 +29,13 @@ export default async function PicturePage({
 
 
   const apiBaseUrl =
-    process.env.SCF_API_BASE_URL;
+    process.env.ACATAR_API_BASE_URL;
 
 
   if (!apiBaseUrl) {
 
     throw new Error(
-      "SCF_API_BASE_URL is missing"
+      "ACATAR_API_BASE_URL is missing"
     );
 
   }

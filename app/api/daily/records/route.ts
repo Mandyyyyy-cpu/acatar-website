@@ -22,11 +22,11 @@ export async function GET(request: Request) {
     );
   }
 
-  const apiBase = process.env.SCF_API_BASE_URL;
+  const apiBase = process.env.ACATAR_API_BASE_URL;
 
   if (!apiBase) {
     return NextResponse.json(
-      { ok: false, message: "SCF_API_BASE_URL 未配置" },
+      { ok: false, message: "ACATAR_API_BASE_URL 未配置" },
       { status: 500 },
     );
   }

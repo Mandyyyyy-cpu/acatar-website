@@ -20,13 +20,13 @@ export async function POST() {
   }
 
   const apiBase =
-    process.env.SCF_API_BASE_URL;
+    process.env.ACATAR_API_BASE_URL;
 
   if (!apiBase) {
     return NextResponse.json(
       {
         ok: false,
-        message: "SCF_API_BASE_URL 未配置",
+        message: "ACATAR_API_BASE_URL 未配置",
       },
       {
         status: 500,
