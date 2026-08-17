@@ -216,6 +216,9 @@ Array.from(
 
 
     maxLength={1}
+    autoCapitalize="characters"
+    autoCorrect="off"
+    spellCheck={false}
 
     onCompositionStart={() => {
       isComposing.current = true;
@@ -341,6 +344,9 @@ Array.from(
         <input
 
           type="text"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
 
           value={password}
 
