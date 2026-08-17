@@ -6,18 +6,23 @@ import {
   solarTermBoundaries,
 } from "@/lib/solarTerms";
 
+type DailyRecord = {
+  drawDate: string;
+  imageUrl: string;
+};
+
 type DailyCalendarProps = {
   year: number;
   month: number;
   today: number;
-  todayImageUrl?: string | null;
+  records: DailyRecord[];
 };
 
 export default function DailyCalendar({
   year,
   month,
   today,
-  todayImageUrl,
+  records,
 }: DailyCalendarProps) {
 
   const [view, setView] =
@@ -29,8 +34,8 @@ export default function DailyCalendar({
   const [zoomMonth, setZoomMonth] =
     useState<number | null>(null);
 
-  const [enlargedDay, setEnlargedDay] =
-    useState<number | null>(null);
+  const [enlargedImageUrl, setEnlargedImageUrl] =
+    useState<string | null>(null);
 
   const currentBranchMonth =
     getBranchMonth(
@@ -67,6 +72,23 @@ export default function DailyCalendar({
       branches[(ganzhiYear - 4) % 12];
 
     return `${stem}${branch}年`;
+  }
+
+  function getImageForDay(day: number) {
+    const monthText =
+      String(activeMonth).padStart(2, "0");
+
+    const dayText =
+      String(day).padStart(2, "0");
+
+    const drawDate =
+      `${year}-${monthText}-${dayText}`;
+
+    return (
+      records.find(
+        (record) => record.drawDate === drawDate
+      )?.imageUrl ?? null
+    );
   }
 
   function getMonthCells(m: number) {
@@ -150,14 +172,20 @@ export default function DailyCalendar({
                     w-[24px]
                   "
                 >
-                  {day === today &&
-                    activeMonth === month &&
-                    todayImageUrl && (
+                  {(() => {
+                    const imageUrl =
+                      getImageForDay(day);
+
+                    if (!imageUrl) {
+                      return null;
+                    }
+
+                    return (
                       <img
-                        src={todayImageUrl}
-                        alt="今日佛像"
+                        src={imageUrl}
+                        alt={`${day}日佛像`}
                         onClick={() =>
-                          setEnlargedDay(day)
+                          setEnlargedImageUrl(imageUrl)
                         }
                         className="
                           h-full
@@ -167,7 +195,8 @@ export default function DailyCalendar({
                           object-cover
                         "
                       />
-                    )}
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -249,7 +278,7 @@ export default function DailyCalendar({
           )}
         </div>
       )}
-      {enlargedDay !== null && todayImageUrl && (
+      {enlargedImageUrl && (
         <div
           className="
             fixed
@@ -260,10 +289,12 @@ export default function DailyCalendar({
             justify-center
             bg-white/80
           "
-          onClick={() => setEnlargedDay(null)}
+          onClick={() =>
+            setEnlargedImageUrl(null)
+          }
         >
           <img
-            src={todayImageUrl}
+            src={enlargedImageUrl}
             alt="放大的每日佛像"
             className="
               max-h-[82vh]

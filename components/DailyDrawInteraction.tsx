@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 
@@ -25,12 +25,12 @@ export default function DailyDrawInteraction({
 
 
   const [selectedCard, setSelectedCard] =
-    useState<number | null>(null);
+    useState<number | null>(todayImageUrl ? 1 : null);
 
 
 
   const [revealing, setRevealing] =
-    useState(false);
+    useState(Boolean(todayImageUrl));
 
   const [drawnImageUrl, setDrawnImageUrl] =
     useState<string | null>(
@@ -43,12 +43,63 @@ export default function DailyDrawInteraction({
 
 
   const [finished, setFinished] =
-    useState(false);
+    useState(Boolean(todayImageUrl));
+
+  const [countdown, setCountdown] =
+    useState("");
 
 
   // 佛像是否放大到屏幕中央
   const [enlarged, setEnlarged] =
     useState(false);
+
+  useEffect(() => {
+    if (!drawnImageUrl) {
+      setCountdown("");
+      return;
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+
+      const beijingNow = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "Asia/Shanghai",
+        })
+      );
+
+      const nextMidnight = new Date(beijingNow);
+      nextMidnight.setHours(24, 0, 0, 0);
+
+      const diff =
+        Math.max(
+          0,
+          nextMidnight.getTime() - beijingNow.getTime()
+        );
+
+      const hours =
+        Math.floor(diff / 3600000);
+
+      const minutes =
+        Math.floor((diff % 3600000) / 60000);
+
+      const seconds =
+        Math.floor((diff % 60000) / 1000);
+
+      setCountdown(
+        `${String(hours).padStart(2, "0")}:` +
+        `${String(minutes).padStart(2, "0")}:` +
+        `${String(seconds).padStart(2, "0")}`
+      );
+    }
+
+    updateCountdown();
+
+    const timer =
+      window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [drawnImageUrl]);
 
 
 
@@ -157,7 +208,7 @@ export default function DailyDrawInteraction({
           "
         >
 
-          择莲启缘
+          {drawnImageUrl ? countdown : "择莲启缘"}
 
         </p>
 

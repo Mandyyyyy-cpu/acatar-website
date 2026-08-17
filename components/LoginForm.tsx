@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
@@ -11,6 +11,9 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const isComposing =
+    useRef(false);
 
   const accountLength = 6;
 
@@ -214,6 +217,14 @@ Array.from(
 
     maxLength={1}
 
+    onCompositionStart={() => {
+      isComposing.current = true;
+    }}
+
+    onCompositionEnd={() => {
+      isComposing.current = false;
+    }}
+
 
     onChange={(e)=>{
 
@@ -243,6 +254,7 @@ Array.from(
 
       if(
         value &&
+        !isComposing.current &&
         e.target.nextSibling
       ){
         (
@@ -256,25 +268,46 @@ Array.from(
 
     onKeyDown={(e)=>{
 
-  if(e.key === "Backspace"){
+  if (e.nativeEvent.isComposing) {
+    return;
+  }
+
+  if (e.key === "Backspace") {
 
     e.preventDefault();
 
-    setAccount("");
+    const chars =
+      account.split("");
 
-    // 光标回第一个格子
+    if (chars[index]) {
 
-    const firstInput =
-      e.currentTarget
-      .parentElement
-      ?.querySelector("input");
+      chars[index] = "";
 
+      setAccount(
+        chars.join("")
+      );
 
-    if(firstInput){
+      return;
+    }
 
-      (
-        firstInput as HTMLInputElement
-      ).focus();
+    if (index > 0) {
+
+      chars[index - 1] = "";
+
+      setAccount(
+        chars.join("")
+      );
+
+      const previousInput =
+        e.currentTarget
+          .previousElementSibling;
+
+      if (
+        previousInput instanceof
+        HTMLInputElement
+      ) {
+        previousInput.focus();
+      }
 
     }
 
@@ -307,7 +340,7 @@ Array.from(
 
         <input
 
-          type="password"
+          type="text"
 
           value={password}
 
