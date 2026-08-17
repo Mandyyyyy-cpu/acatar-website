@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+  moduleFormat = "esm"
+  engineType = "client"
+  runtime = "nodejs"
+  generatedFileExtension = "ts"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum NFTType {
+  INITIAL
+  DAILY_DRAW
+}
+
+model User {
+  id           String   @id @default(cuid())
+  account      String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  nfts       NFT[]
+  dailyDraws DailyDraw[]
+}
+
+model NFT {
+  id       String  @id @default(cuid())
+  imageUrl String
+  type     NFTType
+
+  collection    String?
+  name          String?
+  originalImage String?
+  metadata      String?
+  attributes    Json?
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  dailyDraws DailyDraw[]
+
+  createdAt DateTime @default(now())
+}
+
+model DailyDraw {
+  id        String   @id @default(cuid())
+  drawDate  String
+  userId    String
+  nftId     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  nft  NFT  @relation(fields: [nftId], references: [id])
+
+  @@unique([userId, drawDate])
+}

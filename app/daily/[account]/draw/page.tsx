@@ -36,8 +36,6 @@ export default function DrawPage() {
 
 
 
-  const [light, setLight] =
-    useState(false);
 
 
 
@@ -45,6 +43,20 @@ export default function DrawPage() {
     useState(false);
 
 
+  // 佛像是否放大到屏幕中央
+  const [enlarged, setEnlarged] =
+    useState(false);
+
+
+
+
+  function handleStatueClick(){
+
+    setEnlarged(
+      (prev) => !prev
+    );
+
+  }
 
 
   function handleCardClick(card:number){
@@ -70,24 +82,10 @@ export default function DrawPage() {
 
 
 
-    // 白光
-
-    setTimeout(()=>{
-
-      setLight(true);
-    },2200);
 
 
 
-    // 跳转每日佛像
 
-    setTimeout(()=>{
-
-      router.push(
-        `/daily/${normalizedAccount}/result`
-      );
-
-    },3500);
 
 
   }
@@ -171,8 +169,6 @@ export default function DrawPage() {
                 h-56
                 w-36
                 rounded-xl
-                border
-                border-[#9A2325]
                 bg-white
                 overflow-hidden
               "
@@ -200,17 +196,12 @@ export default function DrawPage() {
 
 
                   ${
-                    selectedCard !== null &&
-                    selectedCard !== card
+                    selectedCard === card &&
+                    revealing
 
-                    ?
+                    ? "opacity-0"
 
-                    "opacity-0"
-
-                    :
-
-                    "opacity-100"
-
+                    : "opacity-100"
                   }
 
                 `}
@@ -230,6 +221,11 @@ export default function DrawPage() {
       src="/statue/today.png"
 
       alt="今日佛像"
+
+      onClick={(e) => {
+        e.stopPropagation();
+        handleStatueClick();
+      }}
 
 
       className={`
@@ -294,29 +290,44 @@ export default function DrawPage() {
 
 
 
-      {/* 白光扩散 */}
-
+      {/* 放大的佛像 */}
       {
-        light && (
+        enlarged && (
 
           <div
-
             className="
               fixed
               inset-0
-              z-[60]
-
-              bg-white
-
-              animate-pulse
-
+              z-[100]
+              flex
+              items-center
+              justify-center
+              bg-white/80
+              backdrop-blur-[2px]
             "
+          >
 
-          />
+            <img
+              src="/statue/today.png"
+              alt="放大的今日佛像"
+
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatueClick();
+              }}
+
+              className="
+                max-h-[82vh]
+                max-w-[88vw]
+                cursor-pointer
+                object-contain
+              "
+            />
+
+          </div>
 
         )
       }
-
 
 
     </main>

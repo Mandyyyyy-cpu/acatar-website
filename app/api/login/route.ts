@@ -5,14 +5,29 @@ import {
   setSessionCookie,
 } from "@/lib/session";
 
-import {
-  findUserByAccount,
-} from "@/lib/users";
-
 
 type LoginRequestBody = {
   account?: string;
   password?: string;
+};
+
+
+type ScfLoginResponse = {
+  ok: boolean;
+
+  message?: string;
+
+  user?: {
+    id: string;
+    account: string;
+
+    nft: {
+      id: string;
+      name: string | null;
+      imageUrl: string;
+      type: string;
+    } | null;
+  };
 };
 
 
@@ -35,9 +50,6 @@ export async function POST(request: Request) {
         ?.trim();
 
 
-
-    // 检查输入
-
     if (!account || !password) {
 
       return NextResponse.json(
@@ -53,71 +65,110 @@ export async function POST(request: Request) {
     }
 
 
-
-    // 查找用户
-
-    const user =
-      findUserByAccount(account);
+    const apiBaseUrl =
+      process.env.SCF_API_BASE_URL;
 
 
+    if (!apiBaseUrl) {
 
-    // 验证账号密码
+      throw new Error(
+        "SCF_API_BASE_URL is missing",
+      );
+
+    }
+
+
+    const scfResponse =
+      await fetch(
+        `${apiBaseUrl.replace(/\/$/, "")}/login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            account,
+            password,
+          }),
+
+          cache: "no-store",
+        },
+      );
+
+
+    const data =
+      (await scfResponse.json()) as ScfLoginResponse;
+
 
     if (
-      !user ||
-      user.password !== password
+      !scfResponse.ok ||
+      !data.ok ||
+      !data.user
     ) {
 
       return NextResponse.json(
         {
           success: false,
-          message: "账号或密码错误",
+          message:
+            data.message ||
+            "账号或密码错误",
         },
         {
-          status: 401,
+          status:
+            scfResponse.status,
         },
       );
 
     }
 
 
+    if (!data.user.nft) {
 
-    // 创建登录 session
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "该账号没有绑定初始佛像",
+        },
+        {
+          status: 500,
+        },
+      );
+
+    }
+
 
     const token =
       createSessionToken({
 
         account:
-          user.account,
+          data.user.account,
 
         imageUrl:
-          user.imageUrl,
+          data.user.nft.imageUrl,
 
       });
-
 
 
     await setSessionCookie(token);
 
 
-
-    // 登录成功
-
     return NextResponse.json({
 
       success: true,
 
-      redirecTo:
+      redirectTo:
         `/picture/${encodeURIComponent(
-          user.account,
+          data.user.account,
         )}`,
 
     });
 
 
-
   } catch (error) {
-
 
     console.error(
       "Login error:",
@@ -127,12 +178,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        success:false,
+        success: false,
         message:
           "登录失败，请重新尝试",
       },
       {
-        status:500,
+        status: 500,
       },
     );
 

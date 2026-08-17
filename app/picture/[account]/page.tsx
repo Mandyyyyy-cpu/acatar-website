@@ -3,7 +3,6 @@ import BottomBar from "@/components/BottomBar";
 import { redirect, notFound } from "next/navigation";
 
 import { getCurrentSession } from "@/lib/session";
-import { findUserByAccount } from "@/lib/users";
 
 import BackButton from "@/components/BackButton";
 
@@ -29,13 +28,55 @@ export default async function PicturePage({
 
 
 
-  const user =
-    findUserByAccount(
-      normalizedAccount
+  const apiBaseUrl =
+    process.env.SCF_API_BASE_URL;
+
+
+  if (!apiBaseUrl) {
+
+    throw new Error(
+      "SCF_API_BASE_URL is missing"
+    );
+
+  }
+
+
+  const response =
+    await fetch(
+      `${apiBaseUrl.replace(/\/$/, "")}/user/${encodeURIComponent(
+        normalizedAccount
+      )}`,
+      {
+        cache: "no-store",
+      }
     );
 
 
-  if (!user) {
+  if (response.status === 404) {
+
+    notFound();
+
+  }
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "Failed to load user NFT"
+    );
+
+  }
+
+
+  const data =
+    await response.json();
+
+
+  const user =
+    data.user;
+
+
+  if (!user?.nft) {
 
     notFound();
 
@@ -104,7 +145,7 @@ export default async function PicturePage({
         {/* NFT 图片 */}
 
         <img
-          src={user.imageUrl}
+          src={user.nft.imageUrl}
           alt={`${normalizedAccount} 的专属佛像`}
           className="
             max-h-[75vh]
