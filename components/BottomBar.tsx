@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type BottomBarProps = {
   account: string;
@@ -139,6 +141,14 @@ export default function BottomBar({
   account,
   active = "picture",
 }: BottomBarProps) {
+
+  const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch(`/picture/${account}`);
+    router.prefetch(`/daily/${account}`);
+  }, [account, router]);
+
   return (
     <div
       className="
