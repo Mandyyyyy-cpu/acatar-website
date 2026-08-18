@@ -101,6 +101,40 @@ function LotusGlow() {
   );
 }
 
+function TouchLotusGlow() {
+  return (
+    <div
+      className="
+        pointer-events-none
+        absolute
+        left-1/2
+        top-1/2
+        z-0
+        h-[90px]
+        w-[90px]
+        -translate-x-1/2
+        -translate-y-1/2
+        scale-50
+        opacity-0
+        transition-all
+        duration-300
+        group-active:scale-110
+        group-active:opacity-100
+      "
+    >
+      <div
+        className="
+          absolute
+          inset-0
+          rounded-full
+          bg-[#B52328]/16
+          blur-[10px]
+        "
+      />
+    </div>
+  );
+}
+
 export default function BottomBar({
   account,
   active = "picture",
@@ -127,10 +161,14 @@ export default function BottomBar({
       <Link
         href={`/picture/${account}`}
         className="
+          group
           flex
           flex-col
           items-center
           justify-center
+          transition-transform
+          duration-150
+          active:scale-90
         "
       >
         <div
@@ -145,7 +183,16 @@ export default function BottomBar({
         >
           {active === "picture" && <LotusGlow />}
 
-          <div className="relative z-10">
+          <TouchLotusGlow />
+
+          <div
+            className="
+              relative
+              z-10
+              transition-transform
+              duration-150
+            "
+          >
             <Image
               src="/icon-buddha.png"
               alt=""
@@ -162,10 +209,14 @@ export default function BottomBar({
       <Link
         href={`/daily/${account}`}
         className="
+          group
           flex
           flex-col
           items-center
           justify-center
+          transition-transform
+          duration-150
+          active:scale-90
         "
       >
         <div
@@ -180,7 +231,16 @@ export default function BottomBar({
         >
           {active === "daily" && <LotusGlow />}
 
-          <div className="relative z-10">
+          <TouchLotusGlow />
+
+          <div
+            className="
+              relative
+              z-10
+              transition-transform
+              duration-150
+            "
+          >
             <Image
               src="/icon-daily.png"
               alt=""
