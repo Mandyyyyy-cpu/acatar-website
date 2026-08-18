@@ -15,7 +15,6 @@ type DailyPageClientProps = {
   year: number;
   month: number;
   today: number;
-  initialImageUrl?: string | null;
 };
 
 export default function DailyPageClient({
@@ -23,16 +22,16 @@ export default function DailyPageClient({
   year,
   month,
   today,
-  initialImageUrl,
 }: DailyPageClientProps) {
 
   const [todayImageUrl, setTodayImageUrl] =
-    useState<string | null>(
-      initialImageUrl ?? null
-    );
+    useState<string | null>(null);
 
   const [records, setRecords] =
     useState<DailyRecord[]>([]);
+
+  const [recordsLoaded, setRecordsLoaded] =
+    useState(false);
 
   useEffect(() => {
     async function loadRecords() {
@@ -71,11 +70,28 @@ export default function DailyPageClient({
           );
 
         setRecords(mappedRecords);
+
+        const todayDate =
+          `${year}-${String(month).padStart(2, "0")}-${String(today).padStart(2, "0")}`;
+
+        const todayRecord =
+          mappedRecords.find(
+            (record) =>
+              record.drawDate === todayDate
+          );
+
+        setTodayImageUrl(
+          todayRecord?.imageUrl ?? null
+        );
+
+        setRecordsLoaded(true);
       } catch (error) {
         console.error(
           "load daily records failed:",
           error
         );
+
+        setRecordsLoaded(true);
       }
     }
 
@@ -84,6 +100,9 @@ export default function DailyPageClient({
 
   return (
     <>
+      {!recordsLoaded ? (
+        <div className="h-[360px]" />
+      ) : (
       <DailyDrawInteraction
         account={account}
         todayImageUrl={todayImageUrl}
@@ -116,6 +135,7 @@ export default function DailyPageClient({
           });
         }}
       />
+      )}
 
       <DailyCalendar
         year={year}

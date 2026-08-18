@@ -27,37 +27,15 @@ export default async function DailyPage({
   const session =
     await getCurrentSession();
 
-  const apiBase =
-    process.env.ACATAR_API_BASE_URL;
-
-  let todayImageUrl:
-    string | null = null;
-
-  if (apiBase) {
-    const response =
-      await fetch(
-        `${apiBase}/daily-record/${normalizedAccount}`,
-        { cache: "no-store" }
-      );
-
-    if (response.ok) {
-      const data =
-        await response.json();
-
-      todayImageUrl =
-        data.draw?.nft?.imageUrl ?? null;
-    }
-  }
-
-
   if (
     !session ||
-    session.account !== normalizedAccount
+    session.account.toUpperCase()
+      !== normalizedAccount
   ) {
-
     redirect("/");
-
   }
+
+
 
 
   /*
@@ -100,52 +78,7 @@ export default async function DailyPage({
     getPart("day");
 
 
-  /*
-   * =========================
-   * 生成本月日历
-   * =========================
-   */
 
-  const daysInMonth =
-    new Date(
-      year,
-      month,
-      0
-    ).getDate();
-
-
-  const firstDay =
-    new Date(
-      year,
-      month - 1,
-      1
-    ).getDay();
-
-
-  const calendarCells:
-    (number | null)[] = [];
-
-
-  for (
-    let i = 0;
-    i < firstDay;
-    i++
-  ) {
-
-    calendarCells.push(null);
-
-  }
-
-
-  for (
-    let day = 1;
-    day <= daysInMonth;
-    day++
-  ) {
-
-    calendarCells.push(day);
-
-  }
 
 
   return (
@@ -179,7 +112,6 @@ export default async function DailyPage({
           year={year}
           month={month}
           today={today}
-          initialImageUrl={todayImageUrl}
         />
 
 
