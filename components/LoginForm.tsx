@@ -102,7 +102,9 @@ console.log(
 
 //重新进入首页，让app/page.tsx 读取cookie
 
-window.location.href = "/";
+window.location.href =
+  data.redirectTo ||
+  `/picture/${encodeURIComponent(normalizedAccount)}`;
 
 return;
 
